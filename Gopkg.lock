@@ -36,6 +36,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/iancoleman/strcase"
+  packages = ["."]
+  revision = "d19238534019cf63623986540a3b6d557d4b4b42"
+
+[[projects]]
+  branch = "master"
   name = "github.com/jhump/protoreflect"
   packages = [
     "desc",
@@ -145,6 +151,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "341f42f065172507186c885dda22956db170054a68da94b318caf488d8461ab4"
+  inputs-digest = "be8dea8ea7de4475d4154816863414b6433d5c100068fc97149ca1f63d40e974"
   solver-name = "gps-cdcl"
   solver-version = 1

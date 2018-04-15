@@ -175,6 +175,14 @@ func TestData_createPayloads(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, mtdClientStreaming)
 
+	mtdTestUnary, err := protodesc.GetMethodDescFromProto(
+		"data.DataTestService.TestCall",
+		"./testdata/data.proto",
+		nil)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, mtdTestUnary)
+
 	t.Run("fail when nil", func(t *testing.T) {
 		single, streaming, err := createPayloads(nil, mtdUnary)
 		assert.Error(t, err)
@@ -262,6 +270,26 @@ func TestData_createPayloads(t *testing.T) {
 		s := []interface{}{m1, m2, m3}
 
 		single, streaming, err := createPayloads(s, mtdUnary)
+		assert.NoError(t, err)
+		assert.NotNil(t, single)
+		assert.Empty(t, streaming)
+	})
+
+	t.Run("create single object from map for unary with camelCase property", func(t *testing.T) {
+		m1 := make(map[string]interface{})
+		m1["paramOne"] = "bob"
+
+		single, streaming, err := createPayloads(m1, mtdTestUnary)
+		assert.NoError(t, err)
+		assert.NotNil(t, single)
+		assert.Empty(t, streaming)
+	})
+
+	t.Run("create single object from map for unary with snake_case property", func(t *testing.T) {
+		m1 := make(map[string]interface{})
+		m1["param_one"] = "bob"
+
+		single, streaming, err := createPayloads(m1, mtdTestUnary)
 		assert.NoError(t, err)
 		assert.NotNil(t, single)
 		assert.Empty(t, streaming)

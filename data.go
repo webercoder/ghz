@@ -3,6 +3,7 @@ package grpcannon
 import (
 	"errors"
 
+	"github.com/iancoleman/strcase"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 )
@@ -34,7 +35,12 @@ func messageFromMap(input *dynamic.Message, data *map[string]interface{}) error 
 	for k, v := range *data {
 		err := input.TrySetFieldByName(k, v)
 		if err != nil {
-			return err
+			// try camelCase
+			nk := strcase.ToSnake(k)
+			err := input.TrySetFieldByName(nk, v)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
