@@ -37,7 +37,7 @@ func messageFromMap(input *dynamic.Message, data *map[string]interface{}) error 
 		if err != nil {
 			// try camelCase
 			nk := strcase.ToSnake(k)
-			err := input.TrySetFieldByName(nk, v)
+			err = input.TrySetFieldByName(nk, v)
 			if err != nil {
 				return err
 			}
