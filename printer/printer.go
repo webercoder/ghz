@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/template"
 	"github.com/bojand/ghz"
@@ -70,19 +71,46 @@ func (rp *ReportPrinter) Print(format string) {
 
 		rp.printf(buf.String())
 	case "influx-summary":
-		rp.printf(rp.getInfluxLine())
+		rp.printInfluxLine()
 	case "influx-details":
 		rp.printInfluxDetails()
 	}
 }
 
-func (rp *ReportPrinter) getInfluxLine() string {
+func (rp *ReportPrinter) getInfluxRunLine() string {
 	measurement := "ghz_run"
 	tags := rp.getInfluxTags(true)
 	fields := rp.getInfluxFields()
-	timestamp := rp.Report.Date.Nanosecond()
+	timestamp := rp.Report.Date.UnixNano()
 
 	return fmt.Sprintf("%v,%v %v %v", measurement, tags, fields, timestamp)
+}
+
+func (rp *ReportPrinter) printInfluxLine() {
+	runLine := rp.getInfluxRunLine()
+
+	fmt.Fprintf(rp.Out, runLine+"\n")
+
+	measurement := "ghz_histogram"
+
+	commonTags := rp.getInfluxTags(false)
+
+	for i, v := range rp.Report.Histogram {
+		values := make([]string, 2)
+		values[0] = fmt.Sprintf("count=%v", v.Count)
+		values[1] = fmt.Sprintf("frequency=%.8f", v.Frequency)
+
+		tags := commonTags
+		tags = tags + fmt.Sprintf(",mark_ns=%.8f,mark_ms=%.8f,mark_s=%.8f", v.Mark*1000000000, v.Mark*1000, v.Mark)
+
+		fields := strings.Join(values, ",")
+
+		date := rp.Report.Date.Add(time.Millisecond * time.Duration(i) * 10)
+
+		timestamp := date.UnixNano()
+
+		fmt.Fprintf(rp.Out, fmt.Sprintf("%v,%v %v %v\n", measurement, tags, fields, timestamp))
+	}
 }
 
 func (rp *ReportPrinter) printInfluxDetails() {
@@ -103,7 +131,7 @@ func (rp *ReportPrinter) printInfluxDetails() {
 			tags = tags + ",hasError=false"
 		}
 
-		timestamp := v.Timestamp.Nanosecond()
+		timestamp := v.Timestamp.UnixNano()
 
 		fields := strings.Join(values, ",")
 
