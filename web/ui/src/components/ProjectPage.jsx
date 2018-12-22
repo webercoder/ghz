@@ -6,10 +6,12 @@ import ProjectList from './ProjectList'
 
 import ProjectContainer from '../containers/ProjectContainer'
 
+const projectContainer = new ProjectContainer()
+
 export default class ProjectPage extends Component {
   render () {
     return (
-      <Provider>
+      <Provider inject={[projectContainer]}>
         <Subscribe to={[ProjectContainer]}>
           {(projectStore) => (
             <Pane>

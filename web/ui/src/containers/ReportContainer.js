@@ -51,6 +51,7 @@ function getRandomInt (max) {
 }
 
 async function getReports (existing, sort) {
+  console.log('getReports')
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       let data = existing
@@ -77,6 +78,7 @@ export default class ReportContainer extends Container {
   }
 
   async fetchReports (sort) {
+    console.log('fetchReports')
     this.setState({
       isFetching: true
     })

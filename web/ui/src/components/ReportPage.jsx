@@ -6,10 +6,12 @@ import ReportList from './ReportList'
 
 import ReportContainer from '../containers/ReportContainer'
 
+const reportContainer = new ReportContainer()
+
 export default class ReportsPage extends Component {
   render () {
     return (
-      <Provider>
+      <Provider inject={[reportContainer]}>
         <Subscribe to={[ReportContainer]}>
           {(reportStore) => (
             <Pane>
