@@ -2,7 +2,9 @@ package runner
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"text/template"
 	"time"
 
@@ -14,6 +16,7 @@ type callTemplateData struct {
 	WorkerID           string // unique worker ID
 	RequestNumber      int64  // unique incremented request number for each request
 	FullyQualifiedName string // fully-qualified name of the method call
+	UUID               string // random UUID v4
 	MethodName         string // shorter call method name
 	ServiceName        string // the service name
 	InputName          string // name of the input message type
@@ -24,6 +27,16 @@ type callTemplateData struct {
 	TimestampUnix      int64  // timestamp of the call as unix time
 }
 
+// generateUUID sourced from https://stackoverflow.com/a/25736155/210827.
+func generateUUID() string {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		fmt.Printf("Rand error: %+v\n", err)
+	}
+	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+}
+
 // newCallTemplateData returns new call template data
 func newCallTemplateData(mtd *desc.MethodDescriptor, workerID string, reqNum int64) *callTemplateData {
 	now := time.Now()
@@ -32,6 +45,7 @@ func newCallTemplateData(mtd *desc.MethodDescriptor, workerID string, reqNum int
 		WorkerID:           workerID,
 		RequestNumber:      reqNum,
 		FullyQualifiedName: mtd.GetFullyQualifiedName(),
+		UUID:               generateUUID(),
 		MethodName:         mtd.GetName(),
 		ServiceName:        mtd.GetService().GetName(),
 		InputName:          mtd.GetInputType().GetName(),
